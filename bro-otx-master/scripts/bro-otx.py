@@ -71,13 +71,15 @@ def iter_pulses(key, mtime, limit=20):
     # request in the loop for every iteration.
     initial_results = _get(key, mtime, limit)
     for result in initial_results['results']:
-        yield result
+        if(result):
+            yield result
 
     next_request = initial_results['next']
     while next_request:
         json_data = _get(key, mtime, next_request=next_request)
         for result in json_data['results']:
-            yield result
+            if(result):
+                yield result
         next_request = json_data['next']
 
 def map_indicator_type(indicator_type):
@@ -108,6 +110,7 @@ def main():
     with open(outfile + '.tmp', 'wb') as f:
         f.write(_HEADER.encode())
         for pulse in iter_pulses(key, mtime):
+            if(pulse and pulse[u'name'] and pulse[u'id'] and pulse[u'author_name'] and pulse[u'indicators'] and pulse[u'references']):
             # Intel description for notices
             description = 'AlienVault OTXv2 - %s ID: %s Author: %s' % (
                                 pulse[u'name'], 
